@@ -1,10 +1,28 @@
+"""
+How to use: Paste the path in log_dir_path of the dir were the logs to be trimmed are to be found and run this file.
+(Tested with python38)
+
+Ideas:
+    - Sometimes one is printing the callstack of every callable in the callstack of the most stackfull. In such case it
+    would be interesting to compress all that into one call stack, e.g. This makes sense in combination with STACK
+
+    Untrimmed:
+    callerOfCaller
+    callerOfCalled <- callerOfCaller
+    called <- callerOfCalled <- callerOfCaller
+
+    Trimmed:
+    called <- callerOfCalled <- callerOfCaller
+
+"""
+
 import re
 from pathlib import Path
 from time import time
 
 start_time = time()
 
-log_dir_path = Path(r'C:\.prjs\trimLog\logs_dir_example')
+log_dir_path = Path(r'C:\trunk\game\bin\client\aaammo_bug_prints')
 log_paths = log_dir_path.glob('**/*.log')
 
 force_retrim = False
