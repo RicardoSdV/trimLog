@@ -14,6 +14,13 @@ Ideas:
     Trimmed:
     called <- callerOfCalled <- callerOfCaller
 
+    - Sometimes callstack repeats itself, spectially if multiple objects are initialized in the same way, maybe tis
+    worth it to compress this, however more field experience is needed to know hoe common this actually is, although
+    maybe some general rule of compression can be applied
+
+    - Sometimes its not that one line of the log repeats, but that a bunch of lines repeat, like a group of three or
+    four, they should also be compressed
+
 """
 
 import re
@@ -22,7 +29,7 @@ from time import time
 
 start_time = time()
 
-log_dir_path = Path(r'C:\trunk\game\bin\client\aaammo_bug_prints')
+log_dir_path = Path(r'C:\trunk2\game\bin\client\.on_discon_bug_logs')
 log_paths = log_dir_path.glob('**/*.log')
 
 force_retrim = False
