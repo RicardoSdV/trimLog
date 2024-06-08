@@ -1,16 +1,10 @@
+Some other log
+A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B <- C <- D
+A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B <- C <- D
+A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B <- C <- D
+B <- B <- B <- B <- B
+B <- B <- B <- B <- B
+B <- B <- B <- B <- B
 A
-B
-B
 A
-B
-B
-C
-D
 A
-B
-B
-A
-B
-B
-C
-D
