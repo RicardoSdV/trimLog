@@ -1,4 +1,1 @@
-Some other log
-3x 2x[2x[A <- 2x[B]] <- C <- D]
-3x 5x[B]
-3x A
+A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B <- C <- D

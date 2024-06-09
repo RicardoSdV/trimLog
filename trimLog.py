@@ -14,9 +14,13 @@ Ideas:
     Trimmed:
     called <- callerOfCalled <- callerOfCaller
 
-    - Sometimes callstack repeats itself, specially if multiple objects are initialized in the same way, maybe tis
-    worth it to compress this, however more field experience is needed to know hoe common this actually is, although
-    maybe some general rule of compression can be applied
+    - Make a generic compression thing that works for any list of strings, be the strings lines of a file or
+
+Known Issues:
+    - If there's more than one pattern for example A, A, A, B, C, A, B, C it will always prefer the "short" pattern
+    i.e. 3A, B, C, A, B, C, instead of the long pattern which would be 2A, 2[A, B, C].
+
+
 
 """
 
@@ -29,7 +33,9 @@ start_time = time()
 log_dir_path = Path(r'C:\prjs\trimLog\logs_dir_example')
 log_paths = log_dir_path.glob('**/*.log')
 
-force_retrim = False
+force_retrim = True
+
+nums = ('1', '2', '3', '4', '5', '6', '7', '8', '9')
 
 for log_path in log_paths:
 
@@ -38,6 +44,7 @@ for log_path in log_paths:
     if log_path.name.startswith('t_'): continue
 
     trimmed_log_path = log_path.with_name('t_' + log_path.name)
+    intermediate_log_path = log_path.with_name('it_' + log_path.name)
     if trimmed_log_path.exists() and not force_retrim: continue
 
     with open(log_path, 'r') as f:
@@ -65,77 +72,168 @@ for log_path in log_paths:
 
     """ ================================================================== """
 
+    if not lines[-1].endswith('\n'):
+        lines[-1] += '\n'
+
     """ =================== Compressing with multiple passes when a group of lines repeats ========================= """
 
-    post_pass_lines = lines; max_group_size = 100  # inclusive
-    for group_size in range(1, max_group_size + 1):
-        pre_pass_lines = post_pass_lines; post_pass_lines = []
-        prev_group = pre_pass_lines[0: group_size]; cnt = 1
-        for i in range(group_size, len(pre_pass_lines) + group_size, group_size):
-            group = pre_pass_lines[i: i+group_size]
-            if group == prev_group: cnt += 1
+    indent = '    '
+    max_group_size = 100
+    post_pass_lines = lines
+
+    for group_size in range(max_group_size, 0, -1):
+
+        pre_pass_lines = post_pass_lines
+        post_pass_lines = []
+
+        this_group_start_i = 0
+        this_group_end_i = group_size - 1
+
+        next_group_start_i = group_size
+        next_group_end_i = 2 * group_size - 1
+
+        this_group = pre_pass_lines[this_group_start_i: this_group_end_i + 1]
+        next_group = pre_pass_lines[next_group_start_i: next_group_end_i + 1]
+
+        groups_cnt = 1
+
+        while this_group:
+
+            if this_group == next_group:
+                groups_cnt += 1
+
+                next_group_start_i += group_size
+                next_group_end_i += group_size
+
             else:
-                if cnt > 1:
-                    if group_size > 1: post_pass_lines.extend([f'{cnt}x\n'] + [f'    {line}' for line in prev_group])
-                    else: post_pass_lines.append(f'{cnt}x {prev_group[0]}')
-                else: post_pass_lines.extend(prev_group)
-                cnt = 1; prev_group = group
+                if groups_cnt == 1:
+                    post_pass_lines.append(this_group[0])
+
+                    this_group_start_i += 1
+                    this_group_end_i += 1
+
+                    next_group_start_i += 1
+                    next_group_end_i += 1
+
+                else:
+
+                    prev_indent = re.match(r'^ *', this_group[0]).group(0)
+                    post_pass_lines.append(f'{prev_indent}{groups_cnt}x\n')
+                    for line in this_group:
+                        post_pass_lines.append(f'{indent}{line}')
+
+                    this_group_start_i = next_group_start_i
+                    this_group_end_i = next_group_end_i
+
+                    next_group_start_i += group_size
+                    next_group_end_i += group_size
+
+                    groups_cnt = 1
+
+
+            this_group = pre_pass_lines[this_group_start_i: this_group_end_i + 1]
+            next_group = pre_pass_lines[next_group_start_i: next_group_end_i + 1]
+
     lines = post_pass_lines
 
     """=============================================================================================================="""
 
     """ ============= Compressing with multiple passes when a group of frames in the call stack repeats ============ """
-    post_pass_lines = []
-    for line in lines:
-        if ' <- ' not in line:
-            post_pass_lines.append(line)
-            continue
+    #
+    # max_group_size = 3
+    # post_pass_lines = lines
+    #
+    # for line in lines:
+    #
+    #     if ' <- ' not in line:
+    #         post_pass_lines.append(line)
+    #         continue
+    #
+    #     post_pass_frames = line.strip().split(' <- ')
+    #
+    #     for group_size in range(max_group_size, 0, -1):
+    #
+    #         pre_pass_frames = post_pass_frames
+    #         post_pass_frames = []
+    #
+    #         this_group_start_i = 0
+    #         this_group_end_i = group_size - 1
+    #
+    #         next_group_start_i = group_size
+    #         next_group_end_i = 2 * group_size - 1
+    #
+    #         this_group = pre_pass_frames[this_group_start_i: this_group_end_i + 1]
+    #         next_group = pre_pass_frames[next_group_start_i: next_group_end_i + 1]
+    #
+    #         groups_cnt = 1
+    #
+    #         while this_group:
+    #             if this_group == next_group:
+    #                 groups_cnt += 1
+    #
+    #                 next_group_start_i += group_size
+    #                 next_group_end_i += group_size
+    #             else:
+    #                 if groups_cnt == 1:
+    #                     post_pass_frames.append(this_group[0])
+    #
+    #                     this_group_start_i += 1
+    #                     this_group_end_i += 1
+    #
+    #                     next_group_start_i += 1
+    #                     next_group_end_i += 1
+    #
+    #                 else:
+    #
+    #                     prev_indent = re.match(r'^ *', this_group[0]).group(0)
+    #                     post_pass_frames.append(f'{prev_indent}{groups_cnt}x\n')
+    #                     for frame in this_group:
+    #                         post_pass_frames.append(f'{prev_indent}{frame}')
+    #
+    #                     this_group_start_i = next_group_start_i
+    #                     this_group_end_i = next_group_end_i
+    #
+    #                     next_group_start_i += group_size
+    #                     next_group_end_i += group_size
+    #
+    #                     groups_cnt = 1
+    #
+    #             this_group = pre_pass_frames[this_group_start_i: this_group_end_i + 1]
+    #             next_group = pre_pass_frames[next_group_start_i: next_group_end_i + 1]
+    #
+    #     post_pass_lines.append(post_pass_frames)
+    #
+    # lines = post_pass_lines
 
-        line = line.strip()
 
-        nums = ('1', '2', '3', '4', '5', '6', '7', '8', '9')
-        chars = []
-        starts_with_num, followed_by_x, followed_by_space = False, False, False
-        for char in line:
-            if char in nums and not followed_by_x and not followed_by_space:
-                starts_with_num = True
-                chars.append(char)
-            elif starts_with_num and char == 'x' and not followed_by_x and not followed_by_space:
-                followed_by_x = True
-                chars.append(char)
-            elif followed_by_x and char == ' ' and not followed_by_space:
-                followed_by_space = True
-                chars.append(char)
-            else:
-                break
 
-        if starts_with_num and followed_by_x and followed_by_space:
-            repeats_marker = ''.join(chars)
-            line = line[len(repeats_marker):]
-        else:
-            repeats_marker = ''
 
-        frames = line.split(' <- ')
-
-        pre_pass_frames = None
-        post_pass_frames = frames
-        for group_size in range(1, max_group_size + 1):
-            pre_pass_frames = post_pass_frames; post_pass_frames = []
-
-            prev_group = pre_pass_frames[0: group_size]; cnt = 1
-            for i in range(group_size, len(pre_pass_frames) + group_size, group_size):
-                group = pre_pass_frames[i: i + group_size]
-                if group == prev_group: cnt += 1
-                else:
-                    if cnt > 1:
-                        post_pass_frames.append(f'{cnt}x[{" <- ".join(prev_group)}]')
-                    else:
-                        post_pass_frames.extend(prev_group)
-                    cnt = 1; prev_group = group
-
-        post_pass_lines.append(f'{repeats_marker}{" <- ".join(post_pass_frames)}\n')
-
-    lines = post_pass_lines
+    # post_pass_lines = []
+    # for line in lines:
+    #     if ' <- ' not in line: post_pass_lines.append(line); continue
+    #     num_start, x_next, space_next = False, False, False; chars = []; line = line.strip()
+    #     for char in line:
+    #         if char in nums and not x_next and not space_next: num_start = True
+    #         elif num_start and char == 'x' and not x_next and not space_next: x_next = True
+    #         elif x_next and char == ' ' and not space_next: space_next = True
+    #         else: break
+    #         chars.append(char)
+    #
+    #     repeats_marker = ''.join(chars) if num_start and x_next and space_next else ''
+    #     line = line[len(repeats_marker):]; frames = line.split(' <- '); post_pass_frames = frames
+    #
+    #     for group_size in range(1, max_group_size + 1):
+    #         pre_pass_frames = post_pass_frames; post_pass_frames = []
+    #         prev_group = pre_pass_frames[0: group_size]; cnt = 1
+    #         for i in range(group_size, len(pre_pass_frames) + group_size, group_size):
+    #             group = pre_pass_frames[i: i + group_size]
+    #             if group == prev_group: cnt += 1
+    #             else:
+    #                 if cnt > 1: post_pass_frames.append(f'{cnt}x[{" <- ".join(prev_group)}]')
+    #                 else: post_pass_frames.extend(prev_group)
+    #                 cnt = 1; prev_group = group
+    #     post_pass_lines.append(f'{repeats_marker}{" <- ".join(post_pass_frames)}\n')
+    # lines = post_pass_lines
 
     """ ============================================================================================================ """
 
