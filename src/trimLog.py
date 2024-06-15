@@ -1,6 +1,6 @@
 """
 How to use: Paste the path in log_dir_path of the dir were the logs to be trimmed are to be found and run this file.
-(Tested with python38)
+(Tested with python312)
 
 Ideas:
     - Sometimes one is printing the callstack of every callable in the callstack of the most stackfull. In such case it
@@ -23,28 +23,30 @@ Known Issues:
 
 
 """
-
-import re
-from pathlib import Path
 from time import time
+
+from path_ops import compress, CompressionFormatList, pretty_fmt_cfl_lines
 
 start_time = time()
 
-log_dir_path = Path(r'C:\prjs\trimLog\logs_dir_example')
-log_paths = log_dir_path.glob('**/*.log')
+from pathlib import Path
+
+
+""" =================== SETTINGS ================== """
 
 force_retrim = True
+log_dir_path = Path(r'/logs_dir_example')
 
-nums = ('1', '2', '3', '4', '5', '6', '7', '8', '9')
+""" =============================================== """
+
+log_paths = log_dir_path.glob('**/*.log')
 
 for log_path in log_paths:
 
     """ ======================= INIT STUFF ======================= """
 
     if log_path.name.startswith('t_'): continue
-
     trimmed_log_path = log_path.with_name('t_' + log_path.name)
-    intermediate_log_path = log_path.with_name('it_' + log_path.name)
     if trimmed_log_path.exists() and not force_retrim: continue
 
     with open(log_path, 'r') as f:
@@ -54,87 +56,83 @@ for log_path in log_paths:
 
     """ =========================================================== """
 
-    """ ======================= REMOVING PREFIXES ======================= """
 
-    log_pattern = r"(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2}).(\d{3,4}): (DEBUG:|INFO:|WARNING:|ERROR:).*$"
-
-    for i, line in enumerate(lines):
-        match = re.match(log_pattern, line)
-        if match:
-            ymd, hour, minute, sec, msec, log_flag = match.groups()
-
-            line = line.replace(
-                '{}{}{}{}{}{}{}{}{}{}{}{}'.format(
-                    ymd, ' ', hour, ':', minute, ':', sec, '.', msec, ': ', log_flag, ' '
-                ), '')
-
-            lines[i] = line
-
-    """ ================================================================== """
-
+    """ ==================================== Compress lines ===================================== """
     if not lines[-1].endswith('\n'):
         lines[-1] += '\n'
 
+    cfl_lines = compress(CompressionFormatList(lines, rep='lines'))
+
+    """ ========================================================================================= """
+
+    """ =================================== Compress frames in lines ================================ """
+
+    # fmt_cmp_lines_for_frame_cmp(cmp_lines)
+
+    """ ============================================================================================= """
+
+
     """ =================== Compressing with multiple passes when a group of lines repeats ========================= """
 
-    indent = '    '
-    max_group_size = 100
-    post_pass_lines = lines
-
-    for group_size in range(max_group_size, 0, -1):
-
-        pre_pass_lines = post_pass_lines
-        post_pass_lines = []
-
-        this_group_start_i = 0
-        this_group_end_i = group_size - 1
-
-        next_group_start_i = group_size
-        next_group_end_i = 2 * group_size - 1
-
-        this_group = pre_pass_lines[this_group_start_i: this_group_end_i + 1]
-        next_group = pre_pass_lines[next_group_start_i: next_group_end_i + 1]
-
-        groups_cnt = 1
-
-        while this_group:
-
-            if this_group == next_group:
-                groups_cnt += 1
-
-                next_group_start_i += group_size
-                next_group_end_i += group_size
-
-            else:
-                if groups_cnt == 1:
-                    post_pass_lines.append(this_group[0])
-
-                    this_group_start_i += 1
-                    this_group_end_i += 1
-
-                    next_group_start_i += 1
-                    next_group_end_i += 1
-
-                else:
-
-                    prev_indent = re.match(r'^ *', this_group[0]).group(0)
-                    post_pass_lines.append(f'{prev_indent}{groups_cnt}x\n')
-                    for line in this_group:
-                        post_pass_lines.append(f'{indent}{line}')
-
-                    this_group_start_i = next_group_start_i
-                    this_group_end_i = next_group_end_i
-
-                    next_group_start_i += group_size
-                    next_group_end_i += group_size
-
-                    groups_cnt = 1
-
-
-            this_group = pre_pass_lines[this_group_start_i: this_group_end_i + 1]
-            next_group = pre_pass_lines[next_group_start_i: next_group_end_i + 1]
-
-    lines = post_pass_lines
+    #
+    # indent = '    '
+    # max_group_size = 100
+    # post_pass_lines = lines
+    #
+    # for group_size in range(max_group_size, 0, -1):
+    #
+    #     pre_pass_lines = post_pass_lines
+    #     post_pass_lines = []
+    #
+    #     this_group_start_i = 0
+    #     this_group_end_i = group_size - 1
+    #
+    #     next_group_start_i = group_size
+    #     next_group_end_i = 2 * group_size - 1
+    #
+    #     this_group = pre_pass_lines[this_group_start_i: this_group_end_i + 1]
+    #     next_group = pre_pass_lines[next_group_start_i: next_group_end_i + 1]
+    #
+    #     groups_cnt = 1
+    #
+    #     while this_group:
+    #
+    #         if this_group == next_group:
+    #             groups_cnt += 1
+    #
+    #             next_group_start_i += group_size
+    #             next_group_end_i += group_size
+    #
+    #         else:
+    #             if groups_cnt == 1:
+    #                 post_pass_lines.append(this_group[0])
+    #
+    #                 this_group_start_i += 1
+    #                 this_group_end_i += 1
+    #
+    #                 next_group_start_i += 1
+    #                 next_group_end_i += 1
+    #
+    #             else:
+    #
+    #                 prev_indent = re.match(r'^ *', this_group[0]).group(0)
+    #                 post_pass_lines.append(f'{prev_indent}{groups_cnt}x\n')
+    #                 for line in this_group:
+    #                     post_pass_lines.append(f'{indent}{line}')
+    #
+    #                 this_group_start_i = next_group_start_i
+    #                 this_group_end_i = next_group_end_i
+    #
+    #                 next_group_start_i += group_size
+    #                 next_group_end_i += group_size
+    #
+    #                 groups_cnt = 1
+    #
+    #
+    #         this_group = pre_pass_lines[this_group_start_i: this_group_end_i + 1]
+    #         next_group = pre_pass_lines[next_group_start_i: next_group_end_i + 1]
+    #
+    # lines = post_pass_lines
 
     """=============================================================================================================="""
 
@@ -239,8 +237,10 @@ for log_path in log_paths:
 
     """ ======================= Save lines to new file ======================= """
 
+    pretty_lines = pretty_fmt_cfl_lines(cfl_lines)
+
     with open(trimmed_log_path, 'w') as f:
-        f.writelines(lines)
+        f.writelines(pretty_lines)
 
     """ ======================================================================= """
 
