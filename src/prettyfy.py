@@ -1,6 +1,6 @@
 from typing import List
 
-from src.compress import CompressionFormatList
+from src.compression_format_list import CompressionFormatList
 from src.constants import INDENT_STR
 
 

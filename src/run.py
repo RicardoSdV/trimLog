@@ -1,4 +1,4 @@
-from src.compress import compress, remove_redundant, CompressionFormatList
+from src.compress_small_groups_first import compress
 from src.format import remove_datetime_and_log_type_prefixes_from_lines_in_place, format_lines_for_lines_compression
 from src.path_ops import find_read_and_write_log_paths
 from src.prettyfy import prettyfy_lines
@@ -27,10 +27,6 @@ def run(
 
 
         cfl_lines = compress(cfl_lines)
-        print(cfl_lines)
-
-
-        cfl_lines = remove_redundant(cfl_lines, CompressionFormatList(cnt=1, rep='lines'))
 
 
         pretty_lines = prettyfy_lines(cfl_lines)

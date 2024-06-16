@@ -1,0 +1,7 @@
+A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B <- C <- D
+A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B <- C <- D
+A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B <- C <- D
+
+C <- D <- A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B
+C <- D <- A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B
+C <- D <- A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B

@@ -1,0 +1,20 @@
+Some other log
+3x
+    A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B <- C <- D
+
+3x
+    C <- D <- A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B
+
+3x
+    B <- B <- B <- B <- B
+
+6x
+    C
+
+2x
+    2x
+        A
+        2x
+            B
+    C
+    D

@@ -1,7 +1,7 @@
 import re
 from typing import List
 
-from src.compress import CompressionFormatList
+from src.compress_big_groups_first import CompressionFormatList
 
 
 def remove_datetime_and_log_type_prefixes_from_lines_in_place(lines: List[str]) -> None:

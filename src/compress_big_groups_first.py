@@ -39,15 +39,7 @@ Known problems:
 """
 from typing import Union, TypeAlias
 
-
-class CompressionFormatList(list):
-    def __init__(self, *args, cnt: int = 1, rep: str = '') -> None:
-        super().__init__(*args)
-        self.cnt = cnt
-        self.rep = rep
-
-
-CompressionRecursive = CompressionFormatList[str, CompressionFormatList]
+from src.compression_format_list import CompressionRecursive, CompressionFormatList
 
 
 def compress(cfl: CompressionRecursive) -> CompressionRecursive:
@@ -100,15 +92,10 @@ def compress(cfl: CompressionRecursive) -> CompressionRecursive:
 
 
 
-def new_remove_redundant(
-        this_el: Union[str, CompressionRecursive]
-) -> CompressionRecursive:
-    pass
-
-
-
 
 def remove_redundant(cfl: CompressionRecursive, result: CompressionRecursive) -> CompressionRecursive:
+    """ Does not actually work as expected, cant remember why"""
+
     for el in cfl:
         if isinstance(el, CompressionFormatList):
             el = remove_redundant(el, CompressionFormatList(cnt=el.cnt, rep=el.rep))
