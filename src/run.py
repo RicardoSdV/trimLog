@@ -22,12 +22,8 @@ def run(
 
         remove_datetime_and_log_type_prefixes_from_lines_in_place(lines)
 
-
         cfl_lines = format_lines_for_lines_compression(lines)
-
-
         cfl_lines = compress(cfl_lines)
-
 
         pretty_lines = prettyfy_lines(cfl_lines)
 
