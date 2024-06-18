@@ -1,4 +1,9 @@
-from typing import Union
+"""
+Should CompressionFormatList inherit from list or should it contain a list??
+
+Pro inheritance arguments
+
+"""
 
 
 class CompressionFormatList(list):
@@ -6,12 +11,6 @@ class CompressionFormatList(list):
         super().__init__(*args)
         self.cnt = cnt
         self.rep = rep
-
-    def __eq__(self, other: Union['CompressionFormatList', str]) -> bool:
-        if isinstance(other, CompressionFormatList):
-            return super().__eq__(other) and self.cnt == other.cnt and self.rep == other.rep
-        return False
-
 
 
 CompressionRecursive = CompressionFormatList[str, CompressionFormatList]

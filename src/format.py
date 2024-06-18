@@ -1,11 +1,17 @@
 import re
 from typing import List
 
-from src.compress_big_groups_first import CompressionFormatList
+from src.compression_format_list import CompressionFormatList
+
+
+def format_line_for_callstack_comp(line: str) -> CompressionFormatList:
+    return CompressionFormatList(
+        line.rstrip('\n').split(' <- '),
+        rep='line'
+    )
 
 
 def remove_datetime_and_log_type_prefixes_from_lines_in_place(lines: List[str]) -> None:
-
     prefix_pattern = r"(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2}).(\d{3,4}): (DEBUG:|INFO:|WARNING:|ERROR:).*$"
 
     for i, line in enumerate(lines):
@@ -24,9 +30,8 @@ def remove_datetime_and_log_type_prefixes_from_lines_in_place(lines: List[str]) 
 def format_lines_for_lines_compression(lines: List[str]) -> CompressionFormatList:
     if not lines[-1].endswith('\n'):
         lines[-1] += '\n'
-
     return CompressionFormatList(lines, rep='lines')
 
 
-def parse_line(line: List[str]) -> CompressionFormatList:
-    pass
+
+

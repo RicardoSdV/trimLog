@@ -1,24 +1,7 @@
 """
-How to use: Paste the path in log_dir_path of the dir were the logs to be trimmed are to be found and run this file.
-(Tested with python312)
+Deprecated: Only here to use commented out code as inspiration
 
-Ideas:
-    - Sometimes one is printing the callstack of every callable in the callstack of the most stackfull. In such case it
-    would be interesting to compress all that into one call stack, e.g. This makes sense in combination with STACK
 
-    Untrimmed:
-    callerOfCaller
-    callerOfCalled <- callerOfCaller
-    called <- callerOfCalled <- callerOfCaller
-
-    Trimmed:
-    called <- callerOfCalled <- callerOfCaller
-
-    - Make a generic compression thing that works for any list of strings, be the strings lines of a file or
-
-Known Issues:
-    - If there's more than one pattern for example A, A, A, B, C, A, B, C it will always prefer the "short" pattern
-    i.e. 3A, B, C, A, B, C, instead of the long pattern which would be 2A, 2[A, B, C].
 
 
 

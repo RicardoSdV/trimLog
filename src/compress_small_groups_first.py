@@ -1,7 +1,9 @@
-from src.compression_format_list import CompressionFormatList, CompressionRecursive
+from typing import List
+
+from src.compression_format_list import CompressionFormatList
 
 
-def compress(post_pass_cfl: CompressionRecursive) -> CompressionRecursive:
+def compress(post_pass_cfl: CompressionFormatList) -> CompressionFormatList:
     represents = post_pass_cfl.rep
 
     for group_size in range(1, len(post_pass_cfl) // 2):
@@ -15,8 +17,8 @@ def compress(post_pass_cfl: CompressionRecursive) -> CompressionRecursive:
         next_group_start_i = group_size
         next_group_end_i = 2 * group_size - 1
 
-        this_group = pre_pass_cfl[this_group_start_i: this_group_end_i + 1]
-        next_group = pre_pass_cfl[next_group_start_i: next_group_end_i + 1]
+        this_group: List[str] = pre_pass_cfl[this_group_start_i: this_group_end_i + 1]
+        next_group: List[str] = pre_pass_cfl[next_group_start_i: next_group_end_i + 1]
 
         groups_cnt = 1
 
