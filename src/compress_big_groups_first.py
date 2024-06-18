@@ -1,5 +1,4 @@
 """
-
 CompressionFormatList inherits from list with two extra attrs:
     - cnt: Which holds the number of repetitions of itself it represents
     - rep: A string represents the type of data the list holds for easy formatting after compression
@@ -30,19 +29,17 @@ Known problems:
     2, 3A
     Which does make sense because its two groups of three As, but it's not a readable way of compressing logs.
 
-    The further problem is that the only other algo I could come up with does exactly the same thing
-    but prefers always the shorter pattern.
-
     Solution:
-        - Do a second pass and try to remove such
+        - Do a second pass and try to remove such wierd patters which is partially achieved by remove_redundant, but
+        only partially
 
 """
 from typing import Union, TypeAlias
 
-from src.compression_format_list import CompressionRecursive, CompressionFormatList
+from src.compression_format_list import CompressionFormatList
 
 
-def compress(cfl: CompressionRecursive) -> CompressionRecursive:
+def compress(cfl: CompressionFormatList) -> CompressionFormatList:
     post_pass_cfl = cfl
     max_group_size = len(cfl) // 2
     for group_size in range(max_group_size, 0, -1):
@@ -93,7 +90,7 @@ def compress(cfl: CompressionRecursive) -> CompressionRecursive:
 
 
 
-def remove_redundant(cfl: CompressionRecursive, result: CompressionRecursive) -> CompressionRecursive:
+def remove_redundant(cfl: CompressionFormatList, result: CompressionFormatList) -> CompressionFormatList:
     """ Does not actually work as expected, cant remember why"""
 
     for el in cfl:

@@ -1,12 +1,12 @@
 Some other log
 3x
-    A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B <- C <- D
+    2x[2x[A <- 2x[B]] <- C <- D]
 
 3x
-    C <- D <- A <- B <- B <- A <- B <- B <- C <- D <- A <- B <- B <- A <- B <- B
+    2x[C <- D <- 2x[A <- 2x[B]]]
 
 3x
-    B <- B <- B <- B <- B
+    5x[B]
 
 6x
     C
@@ -18,3 +18,4 @@ Some other log
             B
     C
     D
+
